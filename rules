@@ -1,9 +1,9 @@
 #!/usr/bin/make -f
 
 PACKAGE := k8s.io/minikube
-GOPATH := obj-x86_64-linux-gnu
-GIT_REV := $(shell git show --format='%H' $(git rev-parse HEAD))
-GIT_REV_SHORT := $(shell git show --format='%h' $(git rev-parse HEAD))
+GOPATH := $(shell pwd)/obj-x86_64-linux-gnu
+GIT_REV := $(shell git log --format='%H' $(git rev-parse HEAD) -1)
+GIT_REV_SHORT := $(shell git log --format='%h' $(git rev-parse HEAD) -1)
 
 # Ensure vendor directories are not included in test or build for golang <= 1.8
 # Exclude hyperkit as this will never be run on osx
@@ -18,9 +18,9 @@ $(GOPATH):
 	mkdir -p "$(GOPATH)"
 
 $(GOPATH)/bin/go-bindata: $(GOPATH)
-	GOBIN=$(GOPATH)/bin go get github.com/jteeuwen/go-bindata/...
+	GOPATH=$(GOPATH) GOBIN=$(GOPATH)/bin go get github.com/jteeuwen/go-bindata/...
 
-pkg/minikube/assets/assets.go:
+pkg/minikube/assets/assets.go: $(GOPATH)/bin/go-bindata
 	$(GOPATH)/bin/go-bindata -nomemcopy -o pkg/minikube/assets/assets.go -pkg assets deploy/addons/...
 
 %:
