@@ -11,7 +11,7 @@ export DH_GOLANG_EXCLUDES := $(PACKAGE)/vendor/.* hyperkit
 
 .PHONY: git-format
 git-format:
-	git grep --full-name --name-only '$$Format:%H' | xargs sed -i "s/\$$Format:%h\\$$/$(GIT_REV)/g"
+	git grep --full-name --name-only '$$Format:%H' | xargs sed -i "s/\$$Format:%H\\$$/$(GIT_REV)/g"
 	git grep --full-name --name-only '$$Format:%h' | xargs sed -i "s/\$$Format:%h\\$$/$(GIT_REV_SHORT)/g"
 
 
