@@ -1,7 +1,6 @@
 #!/usr/bin/make -f
 
 PACKAGE := k8s.io/minikube
-GOPATH := $(shell pwd)/obj-x86_64-linux-gnu
 GIT_REV := $(shell git show --format='%H' $(git rev-parse HEAD))
 GIT_REV_SHORT := $(shell git show --format='%h' $(git rev-parse HEAD))
 
@@ -15,11 +14,8 @@ git-format:
 	git grep --full-name --name-only '$$Format:%h' | xargs sed -i "s/\$$Format:%h\\$$/$(GIT_REV_SHORT)/g"
 
 
-$(GOPATH)/bin/go-bindata:
-	GOBIN=$(GOPATH)/bin go get github.com/jteeuwen/go-bindata/...
-
-pkg/minikube/assets/assets.go: $(GOPATH)/bin/go-bindata
-	$(GOPATH)/bin/go-bindata -nomemcopy -o pkg/minikube/assets/assets.go -pkg assets deploy/addons/...
+pkg/minikube/assets/assets.go:
+	go-bindata -nomemcopy -o pkg/minikube/assets/assets.go -pkg assets deploy/addons/...
 
 %:
 	dh $@ --buildsystem=golang --with=golang
@@ -28,4 +24,4 @@ override_dh_clean: git-format
 	dh_clean -O--buildsystem=golang
 
 override_dh_auto_build: pkg/minikube/assets/assets.go
-	dh_auto_build -O--buildsystem=golang -O--builddir=$(GOPATH)
+	dh_auto_build -O--buildsystem=golang
