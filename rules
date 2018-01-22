@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 
 PACKAGE := k8s.io/minikube
+GOPATH := obj-x86_64-linux-gnu
 GIT_REV := $(shell git show --format='%H' $(git rev-parse HEAD))
 GIT_REV_SHORT := $(shell git show --format='%h' $(git rev-parse HEAD))
 
@@ -13,9 +14,14 @@ git-format:
 	git grep --full-name --name-only '$$Format:%H' | xargs sed -i "s/\$$Format:%H\\$$/$(GIT_REV)/g"
 	git grep --full-name --name-only '$$Format:%h' | xargs sed -i "s/\$$Format:%h\\$$/$(GIT_REV_SHORT)/g"
 
+$(GOPATH):
+	mkdir -p "$(GOPATH)"
+
+$(GOPATH)/bin/go-bindata: $(GOPATH)
+	GOBIN=$(GOPATH)/bin go get github.com/jteeuwen/go-bindata/...
 
 pkg/minikube/assets/assets.go:
-	go-bindata -nomemcopy -o pkg/minikube/assets/assets.go -pkg assets deploy/addons/...
+	$(GOPATH)/bin/go-bindata -nomemcopy -o pkg/minikube/assets/assets.go -pkg assets deploy/addons/...
 
 %:
 	dh $@ --buildsystem=golang --with=golang
